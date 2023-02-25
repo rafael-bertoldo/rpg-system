@@ -9,3 +9,41 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id               String    @id @unique @default(uuid())
+  username         String    @unique @db.VarChar()
+  email            String    @unique @db.VarChar()
+  password         String    @db.VarChar()
+  password_recover String    @default(uuid()) @db.VarChar()
+  avatar_url       String?   @db.VarChar()
+  birthday         DateTime  @db.Date
+  active_token     String    @default(uuid()) @db.VarChar()
+  active           Boolean   @default(false) @db.Boolean
+  posts            Post[]
+  comments         Comment[]
+
+  @@map("users")
+}
+
+model Post {
+  id       String    @id @unique @default(uuid())
+  title    String?   @db.VarChar()
+  content  String    @db.VarChar()
+  user     User      @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  user_id  String
+  comments Comment[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id      String @id @unique @default(uuid())
+  content String @db.VarChar()
+  post    Post   @relation(references: [id], fields: [post_id], onDelete: Cascade)
+  post_id String
+  user    User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
+  user_id String
+
+  @@map("comments")
+}
